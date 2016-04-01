@@ -5,18 +5,16 @@ var shotit = {
 
 	loadImageJSON: function() {
 		var imageJSON;
-		$('#json_content').load(shotit.folder + shotit.gallery_json, function() {
-			imageJSON = $('#json_content').html();
-			shotit.remove
-			shotit.parseImageJSON(imageJSON);
+		var request = $.ajax({
+			url: shotit.folder + shotit.gallery_json
 		});
+		request.done(shotit.parseImageJSON);
 	},
 
 	parseImageJSON: function(imageJSON) {
-		var data = jQuery.parseJSON( imageJSON);
 		var found = false;
 
-		$.each(data, function(index, element) {
+		$.each(imageJSON, function(index, element) {
 			found = false;
 			$('.image-element').each(function(index, domElement) {
 				if ($(this).attr('id') == element.img_path) {
