@@ -19,7 +19,6 @@ def main():
     images.extend(glob.glob(rundir + "/*.jpg"))
 
     gallery_items = [ { "img_path": img, "description": description(img) } for img in images ]
-    print(json.dumps(gallery_items, separators=(',', ':')))
     with open(output_file, 'w') as outfile:
         json.dump(gallery_items, outfile, separators=(',', ':'))
 
