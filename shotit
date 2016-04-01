@@ -5,6 +5,12 @@ import json
 import os
 import sys
 
+import http.server
+import socketserver
+
+HTTP_SERVER_HOST = "localhost"
+HTTP_SERVER_PORT = 8888
+
 def description(path):
     desc_path = os.path.splitext(path)[0] + ".txt"
     with open(desc_path, 'r') as f:
@@ -21,6 +27,11 @@ def main():
     gallery_items = [ { "img_path": img, "description": description(img) } for img in images ]
     with open(output_file, 'w') as outfile:
         json.dump(gallery_items, outfile, separators=(',', ':'))
+
+    Handler = http.server.SimpleHTTPRequestHandler
+    httpd = socketserver.TCPServer((HTTP_SERVER_HOST, HTTP_SERVER_PORT), Handler)
+    print("HTTP server opened at serving at port", HTTP_SERVER_PORT)
+    httpd.serve_forever()
 
 if __name__ == "__main__":
     main()
