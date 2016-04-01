@@ -7,7 +7,6 @@ import shutil
 import sys
 
 import http.server
-import socketserver
 
 HTTP_SERVER_HOST = "localhost"
 HTTP_SERVER_PORT = 8888
@@ -33,8 +32,7 @@ def main():
     os.system("cp -r html/* " + rundir)
 
     os.chdir(rundir)
-    Handler = http.server.SimpleHTTPRequestHandler
-    httpd = socketserver.TCPServer((HTTP_SERVER_HOST, HTTP_SERVER_PORT), Handler)
+    httpd = http.server.HTTPServer((HTTP_SERVER_HOST, HTTP_SERVER_PORT), http.server.SimpleHTTPRequestHandler)
     print("HTTP server opened at ", HTTP_SERVER_HOST, ":",  HTTP_SERVER_PORT, sep="")
     httpd.serve_forever()
 
