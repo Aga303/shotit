@@ -3,7 +3,6 @@
 import glob
 import json
 import os
-import shutil
 import sys
 
 import http.server
@@ -11,10 +10,12 @@ import http.server
 HTTP_SERVER_HOST = "localhost"
 HTTP_SERVER_PORT = 8888
 
+
 def description(path):
     desc_path = os.path.splitext(path)[0] + ".txt"
     with open(desc_path, 'r') as f:
         return f.read()
+
 
 def main():
     rundir = sys.argv[1]
@@ -25,7 +26,7 @@ def main():
     images.extend(glob.glob(rundir + "/*.jpg"))
     images.sort()
 
-    gallery_items = [ { "img_path": os.path.split(img)[1], "description": description(img) } for img in images ]
+    gallery_items = [{"img_path": os.path.split(img)[1], "description": description(img)} for img in images]
     with open(output_file, 'w') as outfile:
         json.dump(gallery_items, outfile, separators=(',', ':'))
 
@@ -33,27 +34,8 @@ def main():
 
     os.chdir(rundir)
     httpd = http.server.HTTPServer((HTTP_SERVER_HOST, HTTP_SERVER_PORT), http.server.SimpleHTTPRequestHandler)
-    print("HTTP server opened at ", HTTP_SERVER_HOST, ":",  HTTP_SERVER_PORT, sep="")
+    print("HTTP server opened at %s:%d" % (HTTP_SERVER_HOST, HTTP_SERVER_PORT))
     httpd.serve_forever()
 
 if __name__ == "__main__":
     main()
-
-'''
-[
-    {
-        "img_path": Testdata1.png,
-        "description": This is a test description 1
-    }
-
-    {
-        "img_path": Testdata2.png,
-        "description": This is a test description 2
-    }
-
-    {
-        "img_path": Testdata3.png,
-        "description": This is a test description 3
-    }
-]
-'''
