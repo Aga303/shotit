@@ -12,23 +12,33 @@ var shotit = {
 	},
 
 	parseImageJSON: function(imageJSON) {
-		var found = false;
-
 		$.each(imageJSON, function(index, element) {
-			found = false;
-			$('.image-element').each(function(index, domElement) {
-				if ($(this).attr('id') == element.img_path) {
-					found = true;
-				}
-			});
-
-			if (!found)
-				$('#gallery_container').append(
-					'<br><br><div id="' + element.img_path + '" class="row image-element"><div class="col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-10 col-xs-offset-1 col-xs-10"><img src="' 
-					+ element.img_path + '" class="img-responsive" alt=""><h4 class="caption">' + element.description + '</h4></div></div>'
-				)
+			if (!$(document.getElementById(element.img_path)).is('.image-element'))
+				shotit.createEntry(element.img_path, element.description);
 		});
 		setTimeout(shotit.loadImageJSON,shotit.refresh_time);
+	},
+
+	createEntry: function(imagePath, description) {
+		var row = $('<div></div>');
+		var grid = $('<div></div>');
+		var image = $('<img>');
+		var caption = $('<h4></h4>');
+
+		row.attr('id', imagePath);
+		row.addClass('row');
+		row.addClass('image-element');
+		grid.addClass('col-md-offset-1 col-md-10 col-sm-offset-1 col-sm-10 col-xs-offset-1 col-xs-10');
+		image.attr('src', imagePath);
+		image.addClass('img-responsive');
+		caption.addClass('caption');
+		caption.html(description);
+
+		row.append(grid);
+		grid.append(image);
+		grid.append(caption);
+
+		$('#gallery_container').append(row);
 	},
 
 	init: function() {
