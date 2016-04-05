@@ -1,0 +1,19 @@
+<html>
+<head>
+<title>Test</title>
+</head>
+
+<script>
+var source = new EventSource('/stream');
+source.onmessage = function (event) {
+     location.reload();
+};
+</script>
+
+<body>
+<h1>All the nice pages</h1>
+{% for image in images %}
+<img src="{{image}}"/>
+{% endfor %}
+</body>
+</html>

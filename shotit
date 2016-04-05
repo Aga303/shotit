@@ -1,41 +1,45 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-import glob
-import json
+from flask import Flask, render_template, send_from_directory, Response
+from glob import glob
 import os
 import sys
+import time
 
-import http.server
+app = Flask(__name__)
 
-HTTP_SERVER_HOST = "localhost"
-HTTP_SERVER_PORT = 8888
-
-
-def description(path):
-    desc_path = os.path.splitext(path)[0] + ".txt"
-    with open(desc_path, 'r') as f:
-        return f.read()
+imgdir = sys.argv[1]
+SUFFIXES = ['gif', 'jpg', 'png']
 
 
-def main():
-    rundir = sys.argv[1]
-    output_file = rundir + "/" + "gallery_items.json"
+@app.route('/')
+def index():
+    images = sum([glob("%s/*.%s" % (imgdir, s)) for s in SUFFIXES], [])
+    return render_template('base.html',
+                           images=[os.path.basename(i) for i in images])
 
-    images = glob.glob(rundir + "/*.png")
-    images.extend(glob.glob(rundir + "/*.gif"))
-    images.extend(glob.glob(rundir + "/*.jpg"))
-    images.sort()
 
-    gallery_items = [{"img_path": os.path.split(img)[1], "description": description(img)} for img in images]
-    with open(output_file, 'w') as outfile:
-        json.dump(gallery_items, outfile, separators=(',', ':'))
+def event_stream():
+    mtime = os.path.getmtime(imgdir)
+    # TODO: eliminate polling
+    while True:
+        time.sleep(1)
+        new_mtime = os.path.getmtime(imgdir)
+        if new_mtime != mtime:
+            mtime = new_mtime
+            yield 'data: please reload\n\n'
 
-    os.system("cp -r html/* " + rundir)
 
-    os.chdir(rundir)
-    httpd = http.server.HTTPServer((HTTP_SERVER_HOST, HTTP_SERVER_PORT), http.server.SimpleHTTPRequestHandler)
-    print("HTTP server opened at %s:%d" % (HTTP_SERVER_HOST, HTTP_SERVER_PORT))
-    httpd.serve_forever()
+@app.route('/stream')
+def stream():
+    return Response(event_stream(), mimetype="text/event-stream")
+
+
+@app.route('/<path:path>')
+def any(path):
+    return send_from_directory(imgdir, path)
+
 
 if __name__ == "__main__":
-    main()
+    app.debug = True
+    app.run(threaded=True, port=8888)
